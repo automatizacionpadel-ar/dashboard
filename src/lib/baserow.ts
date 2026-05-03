@@ -125,6 +125,9 @@ export async function getNegocios(): Promise<Negocio[]> {
       descripcion: r.descripcion,
       activo: r.activo,
       vencimiento: r.Vencimiento ?? null,
+      faq: r.Faq ?? null,
+      logo_url: r.Logo?.[0]?.url ?? null,
+      fotos: r.Fotos?.map((f) => ({ url: f.url, original_name: f.visible_name })) ?? null,
     }));
 }
 
@@ -333,6 +336,44 @@ export async function getDashboardStats(negocioId?: number) {
     courtOccupancy,
     hourlyOccupancy,
   };
+}
+
+// ─── Datos extra para dashboard (todas las reservas del negocio) ─────────
+
+export async function getReservasDashboard(negocioId?: number) {
+  const all = await fetchTableAll<RawReserva>(TABLE_IDS.reservas);
+
+  const filtered = negocioId
+    ? all.filter((r) => getLinkId(r.Negocio) === negocioId)
+    : all;
+
+  const courtCount: Record<string, number> = {};
+  for (const r of filtered) {
+    const c = r.Cancha?.trim() || '?';
+    courtCount[c] = (courtCount[c] ?? 0) + 1;
+  }
+
+  const courtUsage: { name: string; count: number }[] = Object.entries(courtCount)
+    .sort(([, a], [, b]) => b - a)
+    .map(([name, count]) => ({ name: `Cancha ${name}`, count }));
+
+  const reservas: {
+    id: number;
+    fecha: string;
+    hora: string;
+    cliente: string;
+    cancha: string;
+    estado: string;
+  }[] = filtered.map((r) => ({
+    id: r.id,
+    fecha: r.Fecha_Reserva,
+    hora: r.Hora_Reserva ?? '',
+    cliente: getNombre(r.Nombre),
+    cancha: `C${r.Cancha?.trim() ?? '?'}`,
+    estado: normalizeStatus(r.Estado_Pago) === 'paid' ? 'Pagado' : 'Pendiente',
+  }));
+
+  return { courtUsage, reservas };
 }
 
 // ─── Admin Stats (todos los negocios) ───────────────────────────────────────

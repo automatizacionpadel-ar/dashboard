@@ -17,7 +17,7 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json();
-  const { nombre, rubro, descripcion, logo_emoji, color_primario, color_dark, horarios, bienvenida, vencimiento, webhook_url } = body;
+  const { nombre, rubro, descripcion, color_primario, color_dark, horarios, bienvenida, vencimiento, webhook_url, faq, fotos, logo } = body;
 
   if (!nombre || !rubro) {
     return NextResponse.json({ error: 'Nombre y rubro son requeridos' }, { status: 400 });
@@ -35,17 +35,49 @@ export async function POST(request: Request) {
     rubro: rubro.trim().toLowerCase(),
     slug,
     descripcion: descripcion?.trim() ?? '',
-    logo_emoji: logo_emoji?.trim() ?? '🏢',
+    logo_emoji: '🏢',
     color_primario: color_primario?.trim() ?? '#22c55e',
     color_dark: color_dark?.trim() ?? '#16a34a',
     horarios: horarios?.trim() ?? '',
     bienvenida: bienvenida?.trim() ?? '',
     webhook_url: webhook_url?.trim() ?? '',
+    Faq: faq?.trim() ?? '',
     activo: true,
   };
 
   if (vencimiento) {
     payload.Vencimiento = vencimiento;
+  }
+
+  if (fotos && Array.isArray(fotos) && fotos.length > 0) {
+    payload.Fotos = fotos.map((f: Record<string, unknown>) => ({
+      name: f.name,
+      visible_name: f.original_name,
+      url: f.url,
+      size: f.size,
+      mime_type: f.mime_type,
+      is_image: f.is_image,
+      image_width: f.image_width,
+      image_height: f.image_height,
+      uploaded_at: f.uploaded_at,
+      thumbnails: f.thumbnails,
+    }));
+  }
+
+  if (logo && typeof logo === 'object') {
+    const l = logo as Record<string, unknown>;
+    payload.Logo = [{
+      name: l.name,
+      visible_name: l.original_name,
+      url: l.url,
+      size: l.size,
+      mime_type: l.mime_type,
+      is_image: l.is_image,
+      image_width: l.image_width,
+      image_height: l.image_height,
+      uploaded_at: l.uploaded_at,
+      thumbnails: l.thumbnails,
+    }];
   }
 
   try {

@@ -37,6 +37,31 @@ export interface RawNegocio {
   webhook_url: string;
   activo: boolean;
   Vencimiento: string | null;
+  Faq: string | null;
+  Logo: Array<{
+    name: string;
+    visible_name: string;
+    url: string;
+    size: number;
+    mime_type: string;
+    is_image: boolean;
+    image_width: number | null;
+    image_height: number | null;
+    uploaded_at: string;
+    thumbnails: unknown;
+  }> | null;
+  Fotos: Array<{
+    name: string;
+    visible_name: string;
+    url: string;
+    size: number;
+    mime_type: string;
+    is_image: boolean;
+    image_width: number | null;
+    image_height: number | null;
+    uploaded_at: string;
+    thumbnails: unknown;
+  }> | null;
 }
 
 export interface RawUsuario {
@@ -89,6 +114,9 @@ export interface Negocio {
   descripcion: string;
   activo: boolean;
   vencimiento: string | null;
+  faq: string | null;
+  logo_url: string | null;
+  fotos: Array<{ url: string; original_name: string }> | null;
 }
 
 export interface Usuario {

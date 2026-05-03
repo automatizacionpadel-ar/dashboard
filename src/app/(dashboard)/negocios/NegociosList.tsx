@@ -120,10 +120,14 @@ export default function NegociosList({ negocios, rubros }: Props) {
                     <td className="py-4 px-6">
                       <div className="flex items-center gap-3">
                         <div
-                          className="w-9 h-9 rounded-lg flex items-center justify-center text-lg flex-shrink-0"
+                          className="w-9 h-9 rounded-lg flex items-center justify-center text-lg flex-shrink-0 overflow-hidden"
                           style={{ backgroundColor: negocio.activo ? `${negocio.color_primario}20` : '#333' }}
                         >
-                          {negocio.logo_emoji}
+                          {negocio.logo_url ? (
+                            <img src={negocio.logo_url} alt={negocio.nombre} className="w-full h-full object-cover" />
+                          ) : (
+                            negocio.logo_emoji
+                          )}
                         </div>
                         <div className="min-w-0">
                           <p className={`text-sm font-medium truncate ${negocio.activo ? 'text-white' : 'text-gray-500'}`}>

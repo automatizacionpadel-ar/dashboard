@@ -1,12 +1,14 @@
 // app/page.tsx
 import { cookies } from 'next/headers';
 import { verifyToken } from '@/lib/auth';
-import { getDashboardStats, getNegocioById } from '@/lib/baserow';
+import { getDashboardStats, getReservasDashboard } from '@/lib/baserow';
 import StatCard from '@/components/dashboard/StatCard';
 import OccupancyByHourChart from '@/components/dashboard/OccupancyByHourChart';
 import OccupancyByCourtChart from '@/components/dashboard/OccupancyByCourtChart';
 import LoyalPlayersTable from '@/components/dashboard/LoyalPlayersTable';
 import RecentBookings from '@/components/dashboard/RecentBookings';
+import MostUsedCourtsChart from '@/components/dashboard/MostUsedCourtsChart';
+import ReservasCalendar from '@/components/dashboard/ReservasCalendar';
 import PeriodFilter from '@/components/dashboard/PeriodFilter';
 
 export default async function DashboardPage() {
@@ -18,9 +20,16 @@ export default async function DashboardPage() {
   const negocioNombre = session?.negocio_nombre ?? 'Complejo';
 
   let stats;
+  let extraData: { courtUsage: { name: string; count: number }[]; reservas: any[] } = {
+    courtUsage: [],
+    reservas: [],
+  };
 
   try {
-    stats = await getDashboardStats(negocioId);
+    [stats, extraData] = await Promise.all([
+      getDashboardStats(negocioId),
+      getReservasDashboard(negocioId),
+    ]);
   } catch (err) {
     console.error('Error fetching Baserow data:', err);
     stats = {
@@ -80,7 +89,12 @@ export default async function DashboardPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <OccupancyByHourChart data={stats.hourlyOccupancy} />
+        <MostUsedCourtsChart data={extraData.courtUsage} />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <OccupancyByCourtChart data={stats.courtOccupancy} />
+        <ReservasCalendar reservas={extraData.reservas} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">

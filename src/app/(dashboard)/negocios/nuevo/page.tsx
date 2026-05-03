@@ -4,18 +4,29 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Loader2, Plus } from 'lucide-react';
 import Link from 'next/link';
+import ImageUploader from '@/components/dashboard/ImageUploader';
 
 const RUBROS = ['padel', 'peluqueria', 'futbol', 'gimnasio', 'restaurante', 'otro'];
 
-const EMOJIS = ['🎾', '✂️', '⚽', '🏋️', '🍽️', '🏢', '🏆', '⚡', '🔥', '💈'];
-
 const COLORS = [
   { pri: '#22c55e', dark: '#16a34a' },
-  { pri: '#FF6B6B', dark: '#cc5555' },
-  { pri: '#4ECDC4', dark: '#3aada5' },
-  { pri: '#45B7D1', dark: '#3498b8' },
-  { pri: '#A855F7', dark: '#9333ea' },
-  { pri: '#F59E0B', dark: '#d97706' },
+  { pri: '#ef4444', dark: '#dc2626' },
+  { pri: '#f97316', dark: '#ea580c' },
+  { pri: '#eab308', dark: '#ca8a04' },
+  { pri: '#84cc16', dark: '#65a30d' },
+  { pri: '#06b6d4', dark: '#0891b2' },
+  { pri: '#3b82f6', dark: '#2563eb' },
+  { pri: '#6366f1', dark: '#4f46e5' },
+  { pri: '#8b5cf6', dark: '#7c3aed' },
+  { pri: '#a855f7', dark: '#9333ea' },
+  { pri: '#d946ef', dark: '#c026d3' },
+  { pri: '#ec4899', dark: '#db2777' },
+  { pri: '#f43f5e', dark: '#e11d48' },
+  { pri: '#78716c', dark: '#57534e' },
+  { pri: '#14b8a6', dark: '#0d9488' },
+  { pri: '#0ea5e9', dark: '#0284c7' },
+  { pri: '#10b981', dark: '#059669' },
+  { pri: '#64748b', dark: '#475569' },
 ];
 
 export default function NuevoNegocioPage() {
@@ -30,8 +41,10 @@ export default function NuevoNegocioPage() {
   const [bienvenida, setBienvenida] = useState('');
   const [vencimiento, setVencimiento] = useState('');
   const [webhookUrl, setWebhookUrl] = useState('');
-  const [logoEmoji, setLogoEmoji] = useState('🏢');
+  const [faq, setFaq] = useState('');
   const [colorIdx, setColorIdx] = useState(0);
+  const [fotos, setFotos] = useState<any[]>([]);
+  const [logo, setLogo] = useState<any | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -46,13 +59,15 @@ export default function NuevoNegocioPage() {
           nombre,
           rubro,
           descripcion,
-          logo_emoji: logoEmoji,
+          logo: logo || null,
           color_primario: COLORS[colorIdx].pri,
           color_dark: COLORS[colorIdx].dark,
           horarios,
           bienvenida,
           vencimiento: vencimiento || null,
           webhook_url: webhookUrl || null,
+          faq: faq || null,
+          fotos,
         }),
       });
 
@@ -177,6 +192,19 @@ export default function NuevoNegocioPage() {
 
           <div className="md:col-span-2">
             <label className="block text-sm font-medium text-gray-300 mb-1.5">
+              FAQ (Markdown)
+            </label>
+            <textarea
+              value={faq}
+              onChange={(e) => setFaq(e.target.value)}
+              placeholder="## Preguntas Frecuentes&#10;&#10;**¿Cuál es el horario?**&#10;Lun a Dom de 08:00 a 23:00.&#10;&#10;**¿Cómo reservo?**&#10;Escribinos por WhatsApp."
+              rows={6}
+              className="w-full px-4 py-2.5 bg-[#111111] border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-green-500 text-sm resize-y font-mono"
+            />
+          </div>
+
+          <div className="md:col-span-2">
+            <label className="block text-sm font-medium text-gray-300 mb-1.5">
               Mensaje de bienvenida
             </label>
             <textarea
@@ -190,24 +218,9 @@ export default function NuevoNegocioPage() {
 
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-1.5">
-              Emoji
+              Logo
             </label>
-            <div className="flex flex-wrap gap-2">
-              {EMOJIS.map((emoji) => (
-                <button
-                  key={emoji}
-                  type="button"
-                  onClick={() => setLogoEmoji(emoji)}
-                  className={`w-10 h-10 rounded-lg flex items-center justify-center text-lg transition-all ${
-                    logoEmoji === emoji
-                      ? 'bg-green-500/20 ring-1 ring-green-500'
-                      : 'bg-[#111111] hover:bg-white/5'
-                  }`}
-                >
-                  {emoji}
-                </button>
-              ))}
-            </div>
+            <ImageUploader files={logo ? [logo] : []} onChange={(files) => setLogo(files[0] || null)} max={1} />
           </div>
 
           <div>
@@ -227,6 +240,13 @@ export default function NuevoNegocioPage() {
                 />
               ))}
             </div>
+          </div>
+
+          <div className="md:col-span-2">
+            <label className="block text-sm font-medium text-gray-300 mb-1.5">
+              Fotos
+            </label>
+            <ImageUploader files={fotos} onChange={setFotos} max={5} />
           </div>
         </div>
 
